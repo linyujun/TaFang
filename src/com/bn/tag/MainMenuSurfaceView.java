@@ -2,6 +2,7 @@ package com.bn.tag;
 
 
 
+import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -62,7 +63,7 @@ public class MainMenuSurfaceView extends SurfaceView implements SurfaceHolder.Ca
     	{
     	case MotionEvent.ACTION_DOWN:
     		//¼ÌÐøÓÎÏ·
-    		if(x>=&&x<=GOON_X+MAIN_LENGTH&&y>=GOON_Y&&y<=GOON_Y+MAIN_WEIGHT)
+    		if(x>=GOON_X&&x<=GOON_X+MAIN_LENGTH&&y>=GOON_Y&&y<=GOON_Y+MAIN_WEIGHT)
     		{
     			activity.gotoTaChuGame();
     		}
@@ -148,6 +149,7 @@ public class MainMenuSurfaceView extends SurfaceView implements SurfaceHolder.Ca
 			this.fatherView = fatherView;
 			this.surfaceHolder = fatherView.getHolder();
 		}
+		@SuppressLint("WrongCall")
 		public void run(){
 			Canvas c;
 	        while (flag) {

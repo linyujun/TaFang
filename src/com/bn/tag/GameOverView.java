@@ -2,6 +2,7 @@ package com.bn.tag;
 
 
 
+import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -59,6 +60,7 @@ implements SurfaceHolder.Callback  //实现生命周期回调接口
 	public void surfaceCreated(SurfaceHolder holder) {//创建时被调用		
 		new Thread()
 		{
+			@SuppressLint("WrongCall")
 			public void run()
 			{									
 					//计算图片位置
@@ -110,4 +112,4 @@ implements SurfaceHolder.Callback  //实现生命周期回调接口
 	public void surfaceDestroyed(SurfaceHolder arg0) {//销毁时被调用
 
 	}
-}[]
+}

@@ -34,5 +34,6 @@ public class CanOrIndexPic {
 		clo=(int)(x/SINGLE_RODER);
 	    row=(int)(y/SINGLE_RODER);
 	}
+	
 
 }

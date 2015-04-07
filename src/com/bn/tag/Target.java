@@ -19,11 +19,11 @@ public class Target {
 	double direction;
 	float ballx=20;
 	float bally=180;
-	int ii=0;
-	int jj=0;
+	int ii=0;//行走方向
+	int jj=0;//图片换帧显示行走
 	Bitmap bitmapma;
 	static List<Target> ta=new Vector<Target>();
-	double num=0;
+	double num=0;//标示走过的步数
 	boolean workflag=true;
 	int bloodsum;
 	int bloodsumNO;
@@ -135,7 +135,7 @@ public class Target {
 		    {//允许移动则恢复
 		    	ballx=x1;
 		    	bally=y1;
-		    	num++;
+		    	num++;//走的步数越多，代表越前面
 		    	
 		    } 
 		    else if(backFlag)

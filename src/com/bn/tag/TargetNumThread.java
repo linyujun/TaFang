@@ -46,6 +46,7 @@ public class TargetNumThread extends Thread {
 				
 				if(gameView.alTarget1.size()==0)
 				{
+					gameView.shellsjian.clear();
 					for(int i=0;i<tempk;i++)
 					{
 						if(flag)  //0代表怪0  1代表怪1  2代表怪2

@@ -22,22 +22,22 @@ import static com.bn.tag.Constant.*;
 
 public class GameView extends SurfaceView implements SurfaceHolder.Callback{
 
-	TafangGameActivity activity;
-	SingleJianta tartar;
+	TafangGameActivity activity;//主控制类引用
+	SingleJianta tartar;//箭塔
 	
 	SurfaceHolder holder;
-	TargetThread targetTH;
+	TargetThread targetTH;//怪物移动线程
 	IfGameOverThread ifgameoverTh;//判断游戏结束的线程
-	TimeThread timeTh;//水晶覆盖CD的线程
-	ShuijingThread shuijingTh;//水晶大招
-	ShellThread shellTh;
+	TimeThread timeTh;//水晶CD计时的线程
+	ShuijingThread shuijingTh;//水晶释放改变游戏界面透明度
+	ShellThread shellTh;//子弹移动线程
 	CaidanThread caidanth;//弹出菜单的对话框线程
-	homeThread homeTh;	
+	homeThread homeTh;	//home改变状态的线程
 	
 	float caidan_x=CAIDAN_GAME_START_X;
 	float caidan_y=-340;
 	float scale=1.0f;
-	ShellNumThread shellNuTh;
+	ShellNumThread shellNuTh;//子弹发射线程
 	Paint paint;//画笔引用
 	Bitmap background; //背景
 	Bitmap shengming;
@@ -59,44 +59,44 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback{
 	Bitmap shuijing_cover;
 	Bitmap shuijingZCZ;//水晶大招
 	Bitmap candoit;//操作当前箭塔的存在
-	boolean candoiflag=false;
+	boolean candoiflag=false;//点击已放置箭塔操作的标志位
 	Bitmap homelo;//游戏家的位置
 	Bitmap candan;//游戏界面中左下角的菜单图标
 	Bitmap caidanbi;//弹出菜单的图片
-	GameViewDrawThread gameViewDrawThread;
-	List<Target> alTarget;//目标代表
+	GameViewDrawThread gameViewDrawThread;//游戏绘制线程
 	Bitmap target1Bitmap;
 	Bitmap[] iscore=new Bitmap[10];
 	Bitmap[][] targettop=new Bitmap[3][4];
 	Bitmap[][] targetbottom=new Bitmap[3][4];
 	Bitmap[][] targetstraight=new Bitmap[3][4];
-	int score=20;
-	int doller=45;
+	int score=20;//积分
+	int doller=45;//金钱
 	int bloodNUM=10;//当前血量
-	int shuijingNUM=1;
-	int shuijingMiddleNum=25;
+	int shuijingNUM=1;//水晶
+	int shuijingMiddleNum=25;//水晶计数器 
 	int shaNUM=0;
 	int alpha=200;//当前水晶大招的图片的透明度	
 	float scoreWidth = 16;//分数数字的图片的宽度
 	float shuijing_change_x=SHUIJIAN_STARTX;
 	float shuijing_change_y=SHUIJIAN_STARTY;
-	TargetNumThread TargetNum;
+	TargetNumThread TargetNum;//怪物产生线程
 	List<Target> alTarget1=new Vector<Target>();//怪物列表
-	List<SingleJianta> jiantaList=new Vector<SingleJianta>();
-	List<SingleJianta> jiantamidd=new Vector<SingleJianta>();
+	List<Target> alTarget;//需要删除的怪物
+	List<SingleJianta> jiantaList=new Vector<SingleJianta>();//箭塔列表
+	List<SingleJianta> jiantamidd=new Vector<SingleJianta>();//需要删除的箭塔
 	
 	boolean taflag1;//箭塔1的按下标志位
 	boolean taflag2;//箭塔2的按下标志位
 	boolean caidanflag;//游戏界面中菜单图标按下标志位
 	boolean shuijing_Flag=false;//绘制水晶CD的标志位	
-	boolean shuijing_D_Z_Flag=false;
+	boolean shuijing_D_Z_Flag=false;//绘制水晶释放的标志位
 	float middleballx;
 	float middlebally;
-	Shell shell;
+	Shell shell;//子弹
 	//手拖动箭塔走动过程中的动画设置
 	//箭塔拖动
-	SingleGoJianta sg;
-	SingleGoJianta sgsg;
+	SingleGoJianta sg;//拖动放置箭塔15
+	SingleGoJianta sgsg;//拖动放置箭塔25
 	//判断当前位置为可放和不可放的标志位
 	CanOrIndexPic canLocation;
 	CanOrIndexPic candoitit;
@@ -131,9 +131,11 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback{
 	@Override
 	public void onDraw(final Canvas canvas) {
 		super.onDraw(canvas); 
-		canvas.drawBitmap(background, 0,0, null);		
+		canvas.drawBitmap(background, 0,0, null);	
+//		如果是从存档进入游戏
 		if(activity.cundang_Flag)
 		{
+			//从数据库加载存档的箭塔怪物子弹血量金钱等信息
 			List<Integer> list01=new Vector<Integer>();
 			list01=DBUtil.searjianta(activity.name);
 			int[] nochange1=new int[4];
@@ -174,10 +176,6 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback{
 				
 			}
 			activity.cundang_Flag=false;
-			
-		}
-		else 
-		{
 			
 		}
 		
@@ -392,20 +390,21 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback{
 			{
 				alTarget1.clear();
 				shuijingMiddleNum-=25;
-				timeTh.setFlag(true);				
-				this.shuijing_Flag=true;//	
-				this.shuijing_D_Z_Flag=true;
-				shuijingTh.setFlag(true);
+				timeTh.setFlag(true);	//cd计时开启			
+				this.shuijing_Flag=true;//	cd绘画开启
+				this.shuijing_D_Z_Flag=true; // 水晶技能释放绘制开启
+				shuijingTh.setFlag(true);  //水晶技能释放改变透明度线程
 				//shuijingNUM-=1;
 			}
-			//取消选中的箭塔
+			//再次选择选中的箭塔就删除
 			if(tartar!=null&&candoiflag==true&&x>tartar.clo*SINGLE_RODER-40&&x<(tartar.clo+1)*SINGLE_RODER&&y>tartar.row*SINGLE_RODER-40&&y<(tartar.row+1)*SINGLE_RODER+40)
 			{				
 				jiantaList.remove(tartar);
-				this.doller+=5;
+				this.doller+=5;//回收费为5块钱
 				candoiflag=false;
 				return true;
 			}
+			//选择了放置箭塔且金钱数合理
 			if(doller>=25&&x>SCREEN_HEIGHT-LEVEL_WEIGHT-100&&x<SCREEN_HEIGHT-LEVEL_WEIGHT-100+TIBIAO_WEIGHT
         	  &&y>SCREEN_WIDTH-TIBIAO_HEIGHT-10&&y<SCREEN_WIDTH-TIBIAO_HEIGHT-10+TIBIAO_HEIGHT&&caidanflag==false)
         	{
@@ -423,11 +422,12 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback{
               		//return true;
               		return true;
               	}
+        	//选择了菜单
         	if(x>CANDAN_WEIGHT-30&&x<CANDAN_WEIGHT-30+CANDAN_WEIGHT&&y>SCREEN_WIDTH-CANDAN_HEIGHT-10&&y<SCREEN_WIDTH-10)
         	{
         		caidanflag=true;
-        		stopworkAllThreads();
-        		stophuanzhen();
+        		stopworkAllThreads();//停止工作线程
+        		stophuanzhen();//停止绘制线程
         		return true;
         	}
         	//弹出菜单的保存游戏的图标位置
@@ -835,7 +835,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback{
 		
 	}
 	
-	
+	//弹出菜单移动的线程
 	private class CaidanThread extends Thread{
 		GameView father;
 		boolean flag=false;

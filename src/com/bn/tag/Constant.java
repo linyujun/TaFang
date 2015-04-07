@@ -19,7 +19,7 @@ public class Constant {
 		{3,3,0,0,0,0,0,0,2,0,0,0,0,0,0,2,2,3,3,3},
 		{3,3,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,3}
 	};
-	
+//	确定精灵行走方向
 	public static final int[][] MIDDLE_MAP=
 	{
 		{20,180},
@@ -98,7 +98,7 @@ public class Constant {
     public static final float JIANTOU_WEIGHT=40;
     public static final float JIANTOU_HEIGHT=7;
     //箭头的速度
-    public static final float SPEED=1.25f;
+    public static final float SPEED=1.5f;
     
     //主界面中的各个选项按钮的长度和宽度
     public static final float MAIN_LENGTH=170;

@@ -1,5 +1,6 @@
 package com.bn.tag;
 
+import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -14,7 +15,7 @@ import android.view.SurfaceView;
  *
  */
 public class HighJifenSurfaceView extends SurfaceView implements SurfaceHolder.Callback{
-	TafangGameActivity activity;//activity的引用
+	TafangGameActivity activity;//activity的引用 
 	Paint paint;//画笔引用
 	DrawThread drawThread;//绘制线程引用		
 	Bitmap bgBitmap;//背景图片	
@@ -192,6 +193,7 @@ public class HighJifenSurfaceView extends SurfaceView implements SurfaceHolder.C
 			this.fatherView = fatherView;
 			this.surfaceHolder = fatherView.getHolder();
 		}
+		@SuppressLint("WrongCall")
 		public void run(){
 			Canvas c;
 	        while (this.flag) {

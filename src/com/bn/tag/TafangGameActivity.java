@@ -1,5 +1,8 @@
 package com.bn.tag;
-
+/*
+ * 主控制activity
+ * 
+ */
 import java.util.List;
 import java.util.Vector;
 
@@ -36,31 +39,31 @@ import static com.bn.tag.Constant.*;
 
 enum WhichView {WELCOME_VIEW,GAME_VIEW,MUSIC_VIEW,HELP_VIEW,JIFEN_VIEW,MAINMENU_VIEW};
 public class TafangGameActivity extends Activity {
-	GameView gameView;	
+	GameView gameView;//游戏界面
 	WelcomeView welcomeview;//欢迎界面
 	MainMenuSurfaceView MainMenuView;//主界面
 	HighJifenSurfaceView ScoreView;//积分界面
 	MusicSurfaceView musicView;//音乐设置界面
-	GameOverView gameoverView;
-	HelpView helpview;
-	static SQLiteDatabase sldd;
+	GameOverView gameoverView;//游戏结束界面
+	HelpView helpview;//帮助界面
+	static SQLiteDatabase sldd;//数据库
 	Dialog Inputdialog;//游戏存档对话框
-	Dialog GoonGamedialog;//继续游戏对话框
-	String name;//继续游戏对话框中选择的name
+	Dialog GoonGamedialog;//继续游戏选择存档进度对话框
+	String name;//继续游戏对话框中选择的存档name
 	int screenWidth;
 	int screenHeight;
-	List<String> nearlist=new Vector<String>();
+	List<String> nearlist=new Vector<String>();//所有存档结果
 	//声音播放标志位
 	private boolean backGroundMusicOn=true;//背景音乐是否开启的标志
 	private boolean soundOn=true;//音效是否开启的标志
-	boolean cundang_Flag=false;
+	boolean cundang_Flag=false;//标志进入游戏界面是否由继续游戏选择存档进入
 	
 	//震动
 	Vibrator mVibrator;//声明振动器
 	boolean shakeflag=true;//是否震动
 	
 	
-	WhichView curr;
+	WhichView curr;//标志当前界面
 	Handler myHandler = new Handler(){//处理各个SurfaceView发送的消息
 		@Override
 		public void handleMessage(Message msg) {
@@ -94,12 +97,12 @@ public class TafangGameActivity extends Activity {
         getWindowManager().getDefaultDisplay().getMetrics(dm);
         screenWidth=dm.widthPixels;
         screenHeight=dm.heightPixels;
-		//全屏
+		//设置全屏
 		requestWindowFeature(Window.FEATURE_NO_TITLE); 
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN ,  
 		              WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);//设置为横屏
-		collisionShake();
+		collisionShake();//设置震动
 		gotoWelcomeView();      
     }   
     
@@ -167,17 +170,20 @@ public class TafangGameActivity extends Activity {
     	this.setContentView(musicView);
     	curr=WhichView.MUSIC_VIEW;
     }
-    //弹出对话框
-    public void gototachu()
+    //游戏中弹出的存档对话框
+    @SuppressWarnings("deprecation")
+	public void gototachu()
     {
     	showDialog(CUN_DANG_DIALOG_ID);
     }
-    //继续游戏弹出对话框
-    public void gotoTaChuGame()
+    //选择继续游戏弹出选择存档进度对话框
+    @SuppressWarnings("deprecation")
+	public void gotoTaChuGame()
     {
-    	
+//    	查询数据库里面所有的存档记录
     	nearlist=DBUtil.getcundang();
     	showDialog(GO_ONGAME_DIALOG_ID);
+//    	调用此方法会继续回调onCreateDialog（）和onPrepareDialog（）方法创建对话框
     }
     //传播信息
     public void sendMessage(int what)
@@ -215,6 +221,7 @@ public class TafangGameActivity extends Activity {
     		mVibrator.vibrate( new long[]{0,80},-1);
     	}
     }
+//    监听手机返回键
     @Override
     public boolean onKeyDown(int keyCode,KeyEvent e) 
     {
@@ -235,6 +242,7 @@ public class TafangGameActivity extends Activity {
     		
     }
     
+//    打开或者创建数据库，用于存储积分信息
     public static void openOrCreateDatabase()
     {
     	try
@@ -271,7 +279,7 @@ public class TafangGameActivity extends Activity {
 		}
     }
     
-  //插入记录的方法
+  //插入积分记录的方法
     public void insert(int score,String date)
     {
     	try
@@ -286,7 +294,7 @@ public class TafangGameActivity extends Activity {
 			e.printStackTrace();
 		}
     }
-    //查询的方法
+    //分页查询积分信息的方法
     public String query(int posFrom,int length)//开始的位置，要查寻的记录条数
     {
     	StringBuilder sb=new StringBuilder();//要返回的结果
@@ -372,16 +380,16 @@ public class TafangGameActivity extends Activity {
     }
     
     @Override
-    public Dialog onCreateDialog(int id)//创建对话框
+    public Dialog onCreateDialog(int id)//回调创建对话框方法
     {    	
         Dialog result=null;
     	switch(id)
     	{
-	    	case CUN_DANG_DIALOG_ID://姓名输入对话框
+	    	case CUN_DANG_DIALOG_ID://存档对话框
 		    	Inputdialog=new MyDialogue(this); 	    
 				result=Inputdialog;				
 			break;
-	    	case GO_ONGAME_DIALOG_ID:	    		
+	    	case GO_ONGAME_DIALOG_ID:	 //选择游戏存档对话框   		
 	    		AlertDialog.Builder b2=new AlertDialog.Builder(this); 
 				  b2.setItems(
 					null, 
@@ -401,7 +409,7 @@ public class TafangGameActivity extends Activity {
     	//若不是等待对话框则返回
     	switch(id)
     	{
-    	   case CUN_DANG_DIALOG_ID://姓名输入对话框
+    	   case CUN_DANG_DIALOG_ID://存档输入对话框
     		   //确定按钮
     		   Button bjhmcok=(Button)Inputdialog.findViewById(R.id.bjhmcOk);
     		   //取消按钮
@@ -418,20 +426,22 @@ public class TafangGameActivity extends Activity {
     					EditText et=(EditText)Inputdialog.findViewById(R.id.etname);
     					String name=et.getText().toString();
     					 String currentDate=DateUtil.getCurrentDate();
+//    					 插入存档名称
     					 String sql1="insert into save values('"+name+"','"+currentDate+"')";
     					 DBUtil.updatetable(sql1);    					 
-    					 //得到箭塔坐标
+    					 //插入箭塔信息到箭塔表
     					 for(int i=0;i<gameView.jiantaList.size();i++)
     					 {    						
     						 String sql="insert into jiant values ('"+name+"','"+gameView.jiantaList.get(i).clo+"','"+gameView.jiantaList.get(i).row+"','"+gameView.jiantaList.get(i).state+"')";
     						 DBUtil.updatetable(sql);
     					 }
-    					 //得到怪物坐标
+    					 //插入怪物信息到怪物表
     					 for(int i=0;i<gameView.alTarget1.size();i++)
     					 {    						 
     						 String sql="insert into guaiw values ('"+name+"','"+gameView.alTarget1.get(i).ballx+"','"+gameView.alTarget1.get(i).bally+"','"+gameView.alTarget1.get(i).state+"','"+gameView.alTarget1.get(i).direction*180/Math.PI+"','"+gameView.alTarget1.get(i).ii+"','"+gameView.alTarget1.get(i).bloodsum+"','"+gameView.alTarget1.get(i).bloodsumNO+"')";
     						 DBUtil.updatetable(sql);
     					 }
+//    					 插入玩家血量金钱水晶等信息
     					 String sql="insert into nochange values ('"+name+"','"+gameView.doller+"','"+gameView.bloodNUM+"','"+gameView.shaNUM+"','"+gameView.shuijingMiddleNum+"')";
     					 DBUtil.updatetable(sql);
     					//关闭对话框
@@ -453,7 +463,7 @@ public class TafangGameActivity extends Activity {
 	 	          }
 	 	        );   
     	   break;
-    	   case GO_ONGAME_DIALOG_ID:
+    	   case GO_ONGAME_DIALOG_ID://存档选择对话框
     			//对话框对应的总垂直方向LinearLayout
     		   	LinearLayout ll=new LinearLayout(TafangGameActivity.this);
     			ll.setOrientation(LinearLayout.VERTICAL);		//设置朝向	
@@ -512,8 +522,10 @@ public class TafangGameActivity extends Activity {
     		           {
     					@Override
     					public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
-    							long arg3) {//重写选项被单击事件的处理方法   						
+    							long arg3) {//重写选项被单击事件的处理方法 
+    						//记录选择的是哪个游戏存档
     						name=nearlist.get(arg2);
+    						//将进入游戏界面的标志设置为选择存档进入
     						cundang_Flag=true;
     						gotoGameView();			
     						GoonGamedialog.cancel();
